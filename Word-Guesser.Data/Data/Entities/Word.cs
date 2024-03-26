@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Word_Guesser.Data.Data.Entities
 {
-    internal class BaseLanguageEng : BaseEntity
+    public class Word : BaseEntity
     {
-        public string Word { get; set; }
+        public string Identifier { get; set; }
 
     }
 }

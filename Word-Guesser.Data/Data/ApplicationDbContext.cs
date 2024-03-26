@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Word_Guesser.Data.Data.Entities;
 
 namespace Word_Guesser.Data
 {
@@ -12,6 +13,11 @@ namespace Word_Guesser.Data
         {
 
         }
+
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Translation> Transalations { get; set; }
+        public DbSet<Word> Words { get; set; }
+        public DbSet<Picture> Pictures { get; set; }
     }
 
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
