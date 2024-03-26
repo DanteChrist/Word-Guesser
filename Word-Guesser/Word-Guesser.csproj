@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.20" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Word-Guesser.Data\Word-Guesser.Data.csproj" />
+  </ItemGroup>
+
 </Project>
