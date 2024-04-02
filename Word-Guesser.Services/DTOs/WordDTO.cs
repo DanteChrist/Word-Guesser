@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Word_Guesser.Services.DTOs
 {
-    public abstract class BaseDTO 
+    public class WordDTO : BaseDTO
     {
-        public int Id { get; set; }
+        public string Identifier { get; set; }
     }
 }

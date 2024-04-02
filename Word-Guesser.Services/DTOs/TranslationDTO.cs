@@ -10,8 +10,8 @@ namespace Word_Guesser.Services.DTOs
 {
     public class TranslationDTO : BaseDTO
     {
-        public int WordId { get; set; }
-        public int LanguageId { get; set; }
+        public string Word { get; set; }
+        public string Language { get; set; }
         public string Value { get; set; }
     }
 }

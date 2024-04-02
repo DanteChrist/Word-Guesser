@@ -2,55 +2,59 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Humanizer.Localisation.NumberToWords;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Word_Guesser.Data;
 using Word_Guesser.Data.Data.Entities;
+using Word_Guesser.Services;
+using Word_Guesser.Services.Abstarctions;
+using Word_Guesser.Services.DTOs;
 
 namespace Word_Guesser.Controllers
 {
     public class TranslationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public TranslationsController(ApplicationDbContext context)
+        private readonly ITranslationsService _translationService;
+        private readonly ILanguagesService _languagesService;
+        private readonly IWordsService _wordsService;
+        public TranslationsController(ITranslationsService translationService, ILanguagesService languagesService, IWordsService wordsService)
         {
-            _context = context;
+            _translationService = translationService;
+            _languagesService = languagesService;
+            _wordsService = wordsService;
         }
 
         // GET: Translations
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Transalations.Include(t => t.Language).Include(t => t.Word);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _translationService.GetTranslationsAsync());
         }
 
         // GET: Translations/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Transalations == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var translation = await _context.Transalations
-                .Include(t => t.Language)
-                .Include(t => t.Word)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var translation = await _translationService.GetTranslationsByIdAsync(id.Value);
             if (translation == null)
             {
                 return NotFound();
             }
 
+
             return View(translation);
         }
 
         // GET: Translations/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-            ViewData["LanguageId"] = new SelectList(_context.Languages, "Id", "Name");
-            ViewData["WordId"] = new SelectList(_context.Words, "Id", "Identifier");
+            ViewData["LanguageId"] = new SelectList(await _languagesService.GetLanguagesAsync(), "Id", "Name");
+            ViewData["WordId"] = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier");
             return View();
         }
 
@@ -59,43 +63,42 @@ namespace Word_Guesser.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("WordId,LanguageId,Value,Id")] Translation translation)
+        public async Task<IActionResult> Create(TranslationCreateOrEditDTO translation)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(translation);
-                await _context.SaveChangesAsync();
+                await _translationService.AddTranslationsAsync(translation);
+                return RedirectToAction(nameof(Index));
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["LanguageId"] = new SelectList(_context.Languages, "Id", "Name", translation.LanguageId);
-            ViewData["WordId"] = new SelectList(_context.Words, "Id", "Identifier", translation.WordId);
+            ViewData["LanguageId"] = new SelectList(await _languagesService.GetLanguagesAsync(), "Id", "Name", translation.LanguageId);
+            ViewData["WordId"] = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier", translation.WordId);
             return View(translation);
         }
 
         // GET: Translations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Transalations == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var translation = await _context.Transalations.FindAsync(id);
+            var translation = await _translationService.GetTranslationsEditByIdAsync(id.Value);
             if (translation == null)
             {
                 return NotFound();
             }
-            ViewData["LanguageId"] = new SelectList(_context.Languages, "Id", "Name", translation.LanguageId);
-            ViewData["WordId"] = new SelectList(_context.Words, "Id", "Identifier", translation.WordId);
+
             return View(translation);
         }
-
         // POST: Translations/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("WordId,LanguageId,Value,Id")] Translation translation)
+        public async Task<IActionResult> Edit(int id, TranslationCreateOrEditDTO translation)
         {
             if (id != translation.Id)
             {
@@ -106,12 +109,11 @@ namespace Word_Guesser.Controllers
             {
                 try
                 {
-                    _context.Update(translation);
-                    await _context.SaveChangesAsync();
+                    await _translationService.UpdateTranslationsAsync(translation);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TranslationExists(translation.Id))
+                    if (!await TranslationExists(translation.Id))
                     {
                         return NotFound();
                     }
@@ -122,23 +124,18 @@ namespace Word_Guesser.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["LanguageId"] = new SelectList(_context.Languages, "Id", "Name", translation.LanguageId);
-            ViewData["WordId"] = new SelectList(_context.Words, "Id", "Identifier", translation.WordId);
             return View(translation);
         }
 
         // GET: Translations/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Transalations == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var translation = await _context.Transalations
-                .Include(t => t.Language)
-                .Include(t => t.Word)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var translation = await _translationService.GetTranslationsByIdAsync(id.Value);
             if (translation == null)
             {
                 return NotFound();
@@ -152,23 +149,20 @@ namespace Word_Guesser.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Transalations == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Transalations'  is null.");
-            }
-            var translation = await _context.Transalations.FindAsync(id);
+
+            var translation = await _translationService.GetTranslationsByIdAsync(id);
             if (translation != null)
             {
-                _context.Transalations.Remove(translation);
+                await _translationService.DeleteTranslationsByIdAsync(id);
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TranslationExists(int id)
+        private async Task<bool> TranslationExists(int id)
         {
-          return (_context.Transalations?.Any(e => e.Id == id)).GetValueOrDefault();
+            var translation = await _translationService.GetTranslationsByIdAsync(id);
+            return translation != null;
         }
     }
 }

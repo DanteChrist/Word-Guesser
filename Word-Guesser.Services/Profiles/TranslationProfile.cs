@@ -15,6 +15,10 @@ namespace Word_Guesser.Services.Profiles
         public TranslationProfile()
         {
             CreateMap<Translation, TranslationDTO>()
+                .ForMember(dest => dest.Word, opt => opt.MapFrom(item => item.Word.Identifier))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(item => item.Language.Name));
+
+            CreateMap<TranslationCreateOrEditDTO, Translation>()
                 .ReverseMap();
         }
     }

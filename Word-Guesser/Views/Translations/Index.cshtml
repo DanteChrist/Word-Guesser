@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Word_Guesser.Data.Data.Entities.Translation>
+﻿@model IEnumerable<Word_Guesser.Services.DTOs.TranslationDTO>
 
 @{
     ViewData["Title"] = "Index";
@@ -28,10 +28,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Word.Identifier)
+                @Html.DisplayFor(modelItem => item.Word)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Language.Name)
+                @Html.DisplayFor(modelItem => item.Language)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Value)

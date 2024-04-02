@@ -22,7 +22,7 @@ namespace Word_Guesser.Services
             _repository = repository;
             _mapper = mapper;
         }
-        public async Task AddTranslationsAsync(TranslationDTO translationDTO)
+        public async Task AddTranslationsAsync(TranslationCreateOrEditDTO translationDTO)
         {
             var translation = _mapper.Map<Translation>(translationDTO);
             await _repository.AddAsync(translation);
@@ -51,10 +51,16 @@ namespace Word_Guesser.Services
             return _mapper.Map<TranslationDTO>(translation);
         }
 
-        public async Task UpdateTranslationsAsync(TranslationDTO translationDTO)
+        public async Task UpdateTranslationsAsync(TranslationCreateOrEditDTO translationDTO)
         {
             var translation = _mapper.Map<Translation>(translationDTO);
             await _repository.UpdateAsync(translation);
+        }
+
+        public async Task<TranslationCreateOrEditDTO> GetTranslationsEditByIdAsync(int id)
+        {
+            var translation = await _repository.GetByIdAsync(id);
+            return _mapper.Map<TranslationCreateOrEditDTO>(translation);
         }
     }
 }
