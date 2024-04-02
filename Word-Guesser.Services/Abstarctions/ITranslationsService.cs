@@ -6,7 +6,7 @@ namespace Word_Guesser.Services.Abstarctions
     {
         Task<List<TranslationDTO>> GetTranslationsAsync();
         Task<TranslationDTO> GetTranslationsByIdAsync(int id);
-        Task<List<TranslationDTO>> GetTranslationsBValueAsync(string value);
+        Task<TranslationDTO> GetTranslationsByValueAsync(string value);
         Task AddTranslationsAsync(TranslationDTO translation);
         Task DeleteTranslationsByIdAsync(int id);
         Task UpdateTranslationsAsync(TranslationDTO translation);

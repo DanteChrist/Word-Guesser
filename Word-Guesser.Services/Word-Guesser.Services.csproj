@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Profile\" />
+    <ProjectReference Include="..\Word-Guesser.Data\Word-Guesser.Data.csproj" />
   </ItemGroup>
 
 </Project>
