@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,26 +13,27 @@ using Word_Guesser.Services.DTOs;
 
 namespace Word_Guesser.Controllers
 {
-    public class LanguagesController : Controller
+    public class PicturesController : Controller
     {
         private readonly ITranslationsService _translationService;
         private readonly ILanguagesService _languagesService;
         private readonly IWordsService _wordsService;
-        public LanguagesController(ITranslationsService translationService, ILanguagesService languagesService, IWordsService wordsService)
+        private readonly IPictureService _pictureService;
+        public PicturesController(ITranslationsService translationService, ILanguagesService languagesService, IWordsService wordsService, IPictureService pictureService)
         {
             _translationService = translationService;
             _languagesService = languagesService;
             _wordsService = wordsService;
+            _pictureService = pictureService;
         }
 
-
-            // GET: Languages
-            public async Task<IActionResult> Index()
+        // GET: Pictures
+        public async Task<IActionResult> Index()
         {
-            return View(await _languagesService.GetLanguagesAsync());
+            return View(await _pictureService.GetPicturesAsync());
         }
 
-        // GET: Languages/Details/5
+        // GET: Pictures/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,38 +41,39 @@ namespace Word_Guesser.Controllers
                 return NotFound();
             }
 
-            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
-            if (language == null)
+            var picture = await _pictureService.GetPicturesByIdAsync(id.Value);
+            if (picture == null)
             {
                 return NotFound();
             }
 
-
-            return View(language);
+            return View(picture);
         }
 
-        // GET: Languages/Create
-        public IActionResult Create()
+        // GET: Pictures/Create
+        public async Task<IActionResult> CreateAsync()
         {
-            return View();
+            ViewBag.WordId = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier");
+            return View(new PictureCreateOrEditDTO());
         }
 
-        // POST: Languages/Create
+        // POST: Pictures/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LanguageDTO language)
+        public async Task<IActionResult> Create(PictureCreateOrEditDTO picture)
         {
             if (ModelState.IsValid)
             {
-                await _languagesService.AddLanguagesAsync(language);
+                await _pictureService.AddPicturesAsync(picture);
                 return RedirectToAction(nameof(Index));
             }
-            return View(language);
+            ViewBag.WordId = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier");
+            return View(picture);
         }
 
-        // GET: Languages/Edit/5
+        // GET: Pictures/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,23 +81,29 @@ namespace Word_Guesser.Controllers
                 return NotFound();
             }
 
-            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
-            if (language == null)
+            var picture = await _pictureService.GetPicturesByIdAsync(id.Value);
+            if (picture == null)
             {
                 return NotFound();
             }
+            ViewBag.WordId = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier", picture.Word.Id);
 
-            return View(language);
+            return View(new PictureCreateOrEditDTO()
+            {
+                Id = picture.Id,
+                Filename = picture.Filename,
+                WordId = picture.Word.Id
+            });
         }
 
-        // POST: Languages/Edit/5
+        // POST: Pictures/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, LanguageDTO language)
+        public async Task<IActionResult> Edit(int id, PictureCreateOrEditDTO picture)
         {
-            if (id != language.Id)
+            if (id != picture.Id)
             {
                 return NotFound();
             }
@@ -103,11 +112,11 @@ namespace Word_Guesser.Controllers
             {
                 try
                 {
-                    await _languagesService.UpdateLanguagesAsync(language);
+                    await _pictureService.UpdatePicturesAsync(picture);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await LanguageExists(language.Id))
+                    if (!await PictureExists(picture.Id))
                     {
                         return NotFound();
                     }
@@ -118,41 +127,41 @@ namespace Word_Guesser.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(language);
+            ViewBag.WordId = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier", picture.WordId);
+            return View(picture);
         }
 
-        // GET: Languages/Delete/5
+        // GET: Pictures/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
-            if (language == null)
+            var picture = await _pictureService.GetPicturesByIdAsync(id.Value);
+            if (picture == null)
             {
                 return NotFound();
             }
 
-            return View(language);
+            return View(picture);
         }
 
-        // POST: Languages/Delete/5
+        // POST: Pictures/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var language = await _languagesService.GetLanguagesByIdAsync(id);
-            if (language != null)
+            var picture = await _pictureService.GetPicturesByIdAsync(id);
+            if (picture != null)
             {
-                await _translationService.DeleteTranslationsByIdAsync(id);
+                await _pictureService.DeletePicturesByIdAsync(id);
             }
-
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> LanguageExists(int id)
+        private async Task<bool> PictureExists(int id)
         {
             var language = await _languagesService.GetLanguagesByIdAsync(id);
             return language != null;

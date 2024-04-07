@@ -57,6 +57,16 @@ namespace Word_Guesser.Data.Data.Repositories
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<IEnumerable<T>> GetRandomAsync(Expression<Func<T, bool>> predicate, int count)
+        {
+            return await _dbSet
+                .Where(predicate)
+                .OrderBy(r => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+
+        }
+
         public async Task UpdateAsync(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
