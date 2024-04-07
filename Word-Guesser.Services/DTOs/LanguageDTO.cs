@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Word_Guesser.Services.DTOs
 {
-    public class LanguageDTO
+    public class LanguageDTO : BaseDTO
     {
         public string Name { get; set; }
 

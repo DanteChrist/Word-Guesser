@@ -53,9 +53,9 @@ namespace Word_Guesser.Controllers
         // GET: Translations/Create
         public async Task<IActionResult> CreateAsync()
         {
-            ViewData["LanguageId"] = new SelectList(await _languagesService.GetLanguagesAsync(), "Id", "Name");
-            ViewData["WordId"] = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier");
-            return View();
+            ViewBag.LanguageId = new SelectList(await _languagesService.GetLanguagesAsync(), "Id", "Name");
+            ViewBag.WordId = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier");
+            return View(new TranslationCreateOrEditDTO());
         }
 
         // POST: Translations/Create
@@ -69,9 +69,8 @@ namespace Word_Guesser.Controllers
             {
                 await _translationService.AddTranslationsAsync(translation);
                 return RedirectToAction(nameof(Index));
-
-                return RedirectToAction(nameof(Index));
             }
+
             ViewData["LanguageId"] = new SelectList(await _languagesService.GetLanguagesAsync(), "Id", "Name", translation.LanguageId);
             ViewData["WordId"] = new SelectList(await _wordsService.GetWordsAsync(), "Id", "Identifier", translation.WordId);
             return View(translation);
