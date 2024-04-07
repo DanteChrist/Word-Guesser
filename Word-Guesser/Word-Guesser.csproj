@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.28">
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Word-Guesser.Data\Word-Guesser.Data.csproj" />
+    <ProjectReference Include="..\Word-Guesser.Services\Word-Guesser.Services.csproj" />
   </ItemGroup>
 
 </Project>
