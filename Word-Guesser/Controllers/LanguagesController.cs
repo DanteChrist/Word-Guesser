@@ -146,7 +146,7 @@ namespace Word_Guesser.Controllers
             var language = await _languagesService.GetLanguagesByIdAsync(id);
             if (language != null)
             {
-                await _translationService.DeleteTranslationsByIdAsync(id);
+                await _languagesService.DeleteLanguagesByIdAsync(id);
             }
 
             return RedirectToAction(nameof(Index));

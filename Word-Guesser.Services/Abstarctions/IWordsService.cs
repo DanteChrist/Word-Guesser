@@ -9,7 +9,7 @@ namespace Word_Guesser.Services.Abstarctions
 {
     public interface IWordsService
     {
-        Task<WordDTO> GetRandomWord();
+        Task<WordDTO> GetRandomWordAsync();
         Task<List<WordDTO>> GetWordsAsync();
         Task<WordDTO> GetWordsByIdAsync(int id);
         Task AddWordsAsync(WordDTO Word);

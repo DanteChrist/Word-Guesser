@@ -31,7 +31,7 @@ namespace Word_Guesser.Services
             await _repository.DeleteByIdAsync(id);
         }
 
-        public async Task<WordDTO> GetRandomWord()
+        public async Task<WordDTO> GetRandomWordAsync()
         {
             var word = (await _repository.GetRandomAsync(item => item.Id > 0, 1)).FirstOrDefault();
             return _mapper.Map<WordDTO>(word);

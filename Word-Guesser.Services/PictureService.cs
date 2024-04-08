@@ -38,7 +38,11 @@ namespace Word_Guesser.Services
 
             var items = await _repository.GetRandomAsync(item => item.WordId != wordId, 3);
 
-            return _mapper.Map<List<PictureDTO>>(items);
+            var result = new List<Picture>(correct).Concat(items);
+
+            result = result.OrderBy(r => Guid.NewGuid()).ToList();
+
+            return _mapper.Map<List<PictureDTO>>(result);
         }
 
         public async Task<List<PictureDTO>> GetPicturesAsync()

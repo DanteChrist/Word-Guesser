@@ -14,11 +14,11 @@ namespace Word_Guesser.Controllers
 
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var word = _wordsService.GetRandomWord();
+            var word = await  _wordsService.GetRandomWordAsync();
             ViewBag.Word = word;
-            ViewBag.Pictures = _pictureService.GetPicturesAnswersAsync(word.Id);
+            ViewBag.Pictures = await _pictureService.GetPicturesAnswersAsync(word.Id);
             return View();
         }
     }
