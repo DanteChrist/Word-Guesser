@@ -1,6 +1,30 @@
 ﻿<h1>@ViewBag.Word.Identifier</h1>
 
-@foreach(var item in ViewBag.Pictures)
-{
-    <img src="~/images/@item.Filename">
-}
+<div class="d-flex container-fluid align-content-between flex-wrap">
+    @foreach (var item in ViewBag.Pictures)
+    {
+        var url = $"Game/Play/{item.Id}/{ViewBag.Word.Id}";
+        <a class="col-5" href="#" onclick="check(@item.Word.Id)">
+            <img src="~/images/@item.Filename" class="img-thumbnail" data-word-id="@item.Word.Id">
+        </a>
+    }
+
+    <input type="hidden" name="correct" value="@ViewBag.Word.Id" />
+</div>
+<script type="text/javascript">
+    var correctId = 0;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        correctId = document.querySelectorAll("input[name='correct']")[0].value;
+    });
+
+    function check(wordId) {
+        if (wordId == correctId) {
+            alert("Correct!");
+            this.location.reload();
+        }
+        else {
+            alert("Try again!");
+        }
+    }
+</script>

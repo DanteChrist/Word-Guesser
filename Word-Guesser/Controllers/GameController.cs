@@ -21,5 +21,6 @@ namespace Word_Guesser.Controllers
             ViewBag.Pictures = await _pictureService.GetPicturesAnswersAsync(word.Id);
             return View();
         }
+
     }
 }
