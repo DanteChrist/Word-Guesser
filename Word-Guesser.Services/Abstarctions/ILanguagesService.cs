@@ -14,6 +14,5 @@ namespace Word_Guesser.Services.Abstarctions
         Task AddLanguagesAsync(LanguageDTO Language);
         Task DeleteLanguagesByIdAsync(int id);
         Task UpdateLanguagesAsync(LanguageDTO Language);
-
     }
 }

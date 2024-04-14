@@ -25,6 +25,7 @@ builder.Services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddTransient<ITranslationsService, TranslationService>();
 builder.Services.AddTransient<ILanguagesService, LanguageService>();
 builder.Services.AddTransient<IWordsService, WordService>();
+builder.Services.AddTransient<IPictureService, PictureService>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

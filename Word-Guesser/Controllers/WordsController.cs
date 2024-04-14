@@ -7,36 +7,41 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Word_Guesser.Data;
 using Word_Guesser.Data.Data.Entities;
+using Word_Guesser.Services.Abstarctions;
+using Word_Guesser.Services.DTOs;
 
 namespace Word_Guesser.Controllers
 {
     public class WordsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITranslationsService _translationService;
+        private readonly ILanguagesService _languagesService;
+        private readonly IWordsService _wordsService;
+        private readonly IPictureService _pictureService;
 
-        public WordsController(ApplicationDbContext context)
+        public WordsController(ITranslationsService translationService, ILanguagesService languagesService, IWordsService wordsService, IPictureService pictureService)
         {
-            _context = context;
+            _translationService = translationService;
+            _languagesService = languagesService;
+            _wordsService = wordsService;
+            _pictureService = pictureService;
         }
 
         // GET: Words
         public async Task<IActionResult> Index()
         {
-              return _context.Words != null ? 
-                          View(await _context.Words.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Words'  is null.");
+            return View(await _wordsService.GetWordsAsync());
         }
 
         // GET: Words/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Words == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var word = await _context.Words
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var word = await _wordsService.GetWordsByIdAsync(id.Value);
             if (word == null)
             {
                 return NotFound();
@@ -56,12 +61,11 @@ namespace Word_Guesser.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Identifier,Id")] Word word)
+        public async Task<IActionResult> Create(WordDTO word)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(word);
-                await _context.SaveChangesAsync();
+                await _wordsService.AddWordsAsync(word);
                 return RedirectToAction(nameof(Index));
             }
             return View(word);
@@ -70,12 +74,12 @@ namespace Word_Guesser.Controllers
         // GET: Words/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Words == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var word = await _context.Words.FindAsync(id);
+            var word = await _wordsService.GetWordsByIdAsync(id.Value);
             if (word == null)
             {
                 return NotFound();
@@ -88,7 +92,7 @@ namespace Word_Guesser.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Identifier,Id")] Word word)
+        public async Task<IActionResult> Edit(int id, WordDTO word)
         {
             if (id != word.Id)
             {
@@ -99,12 +103,11 @@ namespace Word_Guesser.Controllers
             {
                 try
                 {
-                    _context.Update(word);
-                    await _context.SaveChangesAsync();
+                    await _wordsService.UpdateWordsAsync(word);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!WordExists(word.Id))
+                    if (!await WordExists(word.Id))
                     {
                         return NotFound();
                     }
@@ -121,13 +124,12 @@ namespace Word_Guesser.Controllers
         // GET: Words/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Words == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var word = await _context.Words
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var word = await _wordsService.GetWordsByIdAsync(id.Value);
             if (word == null)
             {
                 return NotFound();
@@ -141,23 +143,19 @@ namespace Word_Guesser.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Words == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Words'  is null.");
-            }
-            var word = await _context.Words.FindAsync(id);
+            var word = await _wordsService.GetWordsByIdAsync(id);
             if (word != null)
             {
-                _context.Words.Remove(word);
+                await _wordsService.DeleteWordsByIdAsync(id);
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool WordExists(int id)
+        private async Task<bool> WordExists(int id)
         {
-          return (_context.Words?.Any(e => e.Id == id)).GetValueOrDefault();
+            var word = await _wordsService.GetWordsByIdAsync(id);
+            return word != null;
         }
     }
 }

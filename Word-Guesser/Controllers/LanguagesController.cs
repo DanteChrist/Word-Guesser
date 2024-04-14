@@ -7,40 +7,44 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Word_Guesser.Data;
 using Word_Guesser.Data.Data.Entities;
+using Word_Guesser.Services.Abstarctions;
+using Word_Guesser.Services.DTOs;
 
 namespace Word_Guesser.Controllers
 {
     public class LanguagesController : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public LanguagesController(ApplicationDbContext context)
+        private readonly ITranslationsService _translationService;
+        private readonly ILanguagesService _languagesService;
+        private readonly IWordsService _wordsService;
+        public LanguagesController(ITranslationsService translationService, ILanguagesService languagesService, IWordsService wordsService)
         {
-            _context = context;
+            _translationService = translationService;
+            _languagesService = languagesService;
+            _wordsService = wordsService;
         }
 
-        // GET: Languages
-        public async Task<IActionResult> Index()
+
+            // GET: Languages
+            public async Task<IActionResult> Index()
         {
-              return _context.Languages != null ? 
-                          View(await _context.Languages.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Languages'  is null.");
+            return View(await _languagesService.GetLanguagesAsync());
         }
 
         // GET: Languages/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Languages == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var language = await _context.Languages
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
             if (language == null)
             {
                 return NotFound();
             }
+
 
             return View(language);
         }
@@ -56,12 +60,11 @@ namespace Word_Guesser.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Id")] Language language)
+        public async Task<IActionResult> Create(LanguageDTO language)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(language);
-                await _context.SaveChangesAsync();
+                await _languagesService.AddLanguagesAsync(language);
                 return RedirectToAction(nameof(Index));
             }
             return View(language);
@@ -70,16 +73,17 @@ namespace Word_Guesser.Controllers
         // GET: Languages/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Languages == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var language = await _context.Languages.FindAsync(id);
+            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
             if (language == null)
             {
                 return NotFound();
             }
+
             return View(language);
         }
 
@@ -88,7 +92,7 @@ namespace Word_Guesser.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Language language)
+        public async Task<IActionResult> Edit(int id, LanguageDTO language)
         {
             if (id != language.Id)
             {
@@ -99,12 +103,11 @@ namespace Word_Guesser.Controllers
             {
                 try
                 {
-                    _context.Update(language);
-                    await _context.SaveChangesAsync();
+                    await _languagesService.UpdateLanguagesAsync(language);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LanguageExists(language.Id))
+                    if (!await LanguageExists(language.Id))
                     {
                         return NotFound();
                     }
@@ -121,13 +124,12 @@ namespace Word_Guesser.Controllers
         // GET: Languages/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Languages == null)
+            if(id == null)
             {
                 return NotFound();
             }
 
-            var language = await _context.Languages
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var language = await _languagesService.GetLanguagesByIdAsync(id.Value);
             if (language == null)
             {
                 return NotFound();
@@ -141,23 +143,19 @@ namespace Word_Guesser.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Languages == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Languages'  is null.");
-            }
-            var language = await _context.Languages.FindAsync(id);
+            var language = await _languagesService.GetLanguagesByIdAsync(id);
             if (language != null)
             {
-                _context.Languages.Remove(language);
+                await _languagesService.DeleteLanguagesByIdAsync(id);
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LanguageExists(int id)
+        private async Task<bool> LanguageExists(int id)
         {
-          return (_context.Languages?.Any(e => e.Id == id)).GetValueOrDefault();
+            var language = await _languagesService.GetLanguagesByIdAsync(id);
+            return language != null;
         }
     }
 }
