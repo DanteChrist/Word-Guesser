@@ -2,7 +2,88 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<body>
+<style>
+  .word-guesser {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 1200px;
+    padding: 80px 60px 42px;
+    overflow: hidden;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  .background-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1123px;
+    margin-top: 259px;
+  }
+
+  .title {
+    color: #3b74e3;
+    font: 287px/256px Inter, sans-serif;
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .play-button {
+    justify-content: center;
+    align-items: center;
+    width: 663px;
+    max-width: 100%;
+    margin-top: 167px;
+    padding: 71px 60px 42px;
+    border-radius: 58px;
+    background-color: rgba(213, 241, 38, 1);
+    color: #000;
+    font: 120px/70px Inter, sans-serif;
+    align-self: center;
+  }
+
+  @@media (max-width: 991px) {
+    .word-guesser {
+      padding: 0 20px;
+    }
+
+    .content-wrapper {
+      margin-top: 40px;
+    }
+
+    .title {
+      max-width: 100%;
+      font-size: 40px;
+      line-height: 40px;
+    }
+
+    .play-button {
+      padding: 0 20px;
+      font-size: 40px;
+      line-height: 26px;
+    }
+  }
+</style>
+
+<main class="word-guesser">
+  <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/889e7e07d004a7f36b06808fba2f7150a7b956261a9ff94543d6001643d0130f?apiKey=75de2b3f2d0f413999090daca032a1bc&" alt="" class="background-image" loading="lazy" />
+  <div class="content-wrapper">
+    <h1 class="title">
+      Word<br />Guesser
+    </h1>
+            <button id="myButton" class="play-button">Play</button>
+  </div>
+</main>
+</body>
