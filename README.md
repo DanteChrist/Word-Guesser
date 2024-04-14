@@ -1,4 +1,4 @@
-# Habit Buddies
+# Word Guesser
 
 ## **Преглед**
 
